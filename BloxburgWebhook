@@ -1,0 +1,34 @@
+local player = game.Players.LocalPlayer
+local playerStats = game.ReplicatedStorage.Stats:FindFirstChild(player.Name)
+
+local Job = playerStats.Job
+local shiftEarnings = Job.ShiftEarnings
+
+function webhookSend(title, description)
+   local response = request(
+    {
+        Url = 'https://discord.com/api/webhooks/1084116965452423219/l4BeHOWg4OYMDLI3_tQYLE90ls0wMF1tV9WfAk72HnY-hEHBXRMDLsUxtAl_XvmGim7U',
+        Method = 'POST',
+        Headers = {
+            ['Content-Type'] = 'application/json'
+        },
+          Body = game:GetService('HttpService'):JSONEncode({embeds = {
+          {title = title, description = description, color = tonumber(0x65eb89)}
+        }})
+     }
+   );
+end
+
+local function round(n)
+	return math.floor(n + 0.5)
+end
+
+shiftEarnings:GetPropertyChangedSignal("Value"):Connect(function()
+    if round(shiftEarnings.Value)%10000 >= 0 then
+       webhookSend("New Milestone", ("**".. player.Name .. "** has reached a milestone of **" .. round(shiftEarnings.Value) .. "** working at **" .. Job.Value .. "**"))
+    end
+end)
+
+player.Removing:Connect(function()
+    webhookSend("Player Left", ("**" .. player.Name .. "** has **left**")
+end)
